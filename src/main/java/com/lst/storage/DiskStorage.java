@@ -13,7 +13,7 @@ public class DiskStorage implements Storage {
     List<Segment> segments = new ArrayList<>();
 
     public DiskStorage(String location) {
-        for (File file : new File(location).listFiles((dir, name) -> !name.contains("offset") && !name.contains(".DS_Store"))) {
+        for (File file : new File(location).listFiles((dir, name) -> !name.contains("offset") && !name.contains(".DS_Store") && !name.contains("wal"))) {
             segments.add(new Segment(file.getAbsolutePath()));
         }
     }

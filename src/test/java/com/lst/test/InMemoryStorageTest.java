@@ -2,6 +2,7 @@ package com.lst.test;
 
 import com.lst.storage.DiskStorage;
 import com.lst.storage.InMemoryStorage;
+import com.lst.storage.WriteAheadLog;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -13,7 +14,7 @@ public class InMemoryStorageTest {
     @Before
     public void setup() throws Exception {
         diskStorage = new DiskStorage("/Users/manoj/kvdata");
-        storage = new InMemoryStorage(10, diskStorage);
+        storage = new InMemoryStorage(10, diskStorage, new WriteAheadLog());
     }
 
     @Test
@@ -21,6 +22,9 @@ public class InMemoryStorageTest {
         for (int i = 0; i <= 20; i++) {
             storage.put("key-" + i, "value-" + i);
         }
+        storage.put("Manoj", "TestINg");
+        storage.put("Asdf", "testing");
+        throw new RuntimeException();
     }
 
     @Test

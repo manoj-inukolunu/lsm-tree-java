@@ -1,5 +1,7 @@
 package com.lst.storage;
 
+import lombok.SneakyThrows;
+
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Iterator;
@@ -19,19 +21,29 @@ public class InMemoryStorage implements Storage {
     int segmentCount = 0;
 
     Storage diskStorage;
+    WriteAheadLog writeAheadLog;
 
-    public InMemoryStorage(int size, Storage diskStorage) {
+    public InMemoryStorage(int size, Storage diskStorage, WriteAheadLog writeAheadLog) {
         this.size = size;
         this.diskStorage = diskStorage;
+        this.writeAheadLog = writeAheadLog;
+        for (String line : writeAheadLog.readLine()) {
+            String[] data = line.split(" ");
+            map.put(data[0], data[1]);
+        }
     }
 
 
+    @SneakyThrows
     @Override
     public void put(String key, String value) {
         if (map.size() >= size) {
             flushToDisk(map);
-            map = new TreeMap<>();
+            writeAheadLog.delete();
+            writeAheadLog.createNew();
+            map.clear();
         }
+        writeAheadLog.append(key, value);
         map.put(key, value);
     }
 
