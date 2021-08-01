@@ -1,4 +1,4 @@
-package com.lst.storage;
+package com.lsmt.storage;
 
 public interface Storage {
 

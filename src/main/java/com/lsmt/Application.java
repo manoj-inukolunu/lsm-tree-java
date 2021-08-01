@@ -1,4 +1,4 @@
-package com.lst;
+package com.lsmt;
 
 
 import org.springframework.boot.SpringApplication;

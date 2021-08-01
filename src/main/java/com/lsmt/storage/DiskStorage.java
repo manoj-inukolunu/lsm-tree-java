@@ -1,4 +1,4 @@
-package com.lst.storage;
+package com.lsmt.storage;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;

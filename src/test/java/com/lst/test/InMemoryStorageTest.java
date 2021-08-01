@@ -1,8 +1,8 @@
 package com.lst.test;
 
-import com.lst.storage.DiskStorage;
-import com.lst.storage.InMemoryStorage;
-import com.lst.storage.WriteAheadLog;
+import com.lsmt.storage.DiskStorage;
+import com.lsmt.storage.InMemoryStorage;
+import com.lsmt.storage.WriteAheadLog;
 import org.junit.Before;
 import org.junit.Test;
 

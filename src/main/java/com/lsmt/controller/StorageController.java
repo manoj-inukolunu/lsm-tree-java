@@ -1,10 +1,10 @@
-package com.lst.controller;
+package com.lsmt.controller;
 
 
-import com.lst.model.GetRequest;
-import com.lst.model.PutRequest;
-import com.lst.storage.InMemoryStorage;
-import com.lst.storage.Storage;
+import com.lsmt.model.GetRequest;
+import com.lsmt.model.PutRequest;
+import com.lsmt.storage.InMemoryStorage;
+import com.lsmt.storage.Storage;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;

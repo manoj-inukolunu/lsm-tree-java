@@ -1,4 +1,4 @@
-package com.lst.model;
+package com.lsmt.model;
 
 
 import lombok.Data;

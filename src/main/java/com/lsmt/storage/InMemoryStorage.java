@@ -1,4 +1,4 @@
-package com.lst.storage;
+package com.lsmt.storage;
 
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Value;
