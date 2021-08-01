@@ -1,15 +1,17 @@
 package com.lsmt.storage;
 
+import com.lsmt.model.SegmentEntry;
+import lombok.Data;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -17,6 +19,7 @@ import java.util.concurrent.Future;
 
 
 @Component("inMemoryStorage")
+@Data
 public class InMemoryStorage implements Storage {
 
 
@@ -61,22 +64,11 @@ public class InMemoryStorage implements Storage {
         Future future = service.submit(() -> {
             Iterator<Map.Entry<String, String>> iterator = copyMap.entrySet().iterator();
             try {
-                String segmentFileName = getSegmentFileName("/Users/manoj/kvdata");
-                FileWriter writer = new FileWriter(segmentFileName);
-                FileWriter offsetFileWriter = new FileWriter(segmentFileName + "-offset");
-                int currentOffset = 0;
+                SegmentImpl segment = SegmentImpl.create(getSegmentFileName("/Users/manoj/kvdata"));
                 while (iterator.hasNext()) {
                     Map.Entry<String, String> entry = iterator.next();
-                    writer.append(entry.getKey()).append(entry.getValue());
-                    writer.flush();
-                    offsetFileWriter.append(String.valueOf(currentOffset));
-                    currentOffset += entry.getKey().length();
-                    offsetFileWriter.append(" ").append(String.valueOf(currentOffset)).append("\r\n");
-                    offsetFileWriter.flush();
-                    currentOffset += entry.getValue().length();
+                    segment.appendSegmentEntry(new SegmentEntry(entry.getKey(), entry.getValue()));
                 }
-                writer.close();
-                offsetFileWriter.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -89,11 +81,7 @@ public class InMemoryStorage implements Storage {
     }
 
     private String getSegmentFileName(String dir) {
-        if (segmentCount == 0) {
-            segmentCount++;
-            return dir + "/segment-0";
-        }
-        return dir + "/segment-" + (segmentCount++);
+        return dir + "/segment-" + (UUID.randomUUID());
     }
 
     private String getLocal(String key) {
@@ -106,7 +94,7 @@ public class InMemoryStorage implements Storage {
     @Override
     public String get(String key) {
         String value = getLocal(key);
-        if (value.equals("##TOMBSTONED##")) {
+        if (value != null && value.equals("##TOMBSTONED##")) {
             return null;
         }
         return value;

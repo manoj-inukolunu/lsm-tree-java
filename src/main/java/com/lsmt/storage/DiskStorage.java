@@ -1,5 +1,6 @@
 package com.lsmt.storage;
 
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -13,9 +14,10 @@ import java.util.Objects;
 
 @Slf4j
 @Component("diskStorage")
+@Data
 public class DiskStorage implements Storage {
 
-    private final List<Segment> segments = new ArrayList<>();
+    private final List<SegmentImpl> segments = new ArrayList<>();
 
     @Value("${segments.location}")
     public String location;
@@ -28,7 +30,7 @@ public class DiskStorage implements Storage {
     public void populateSegments() {
         for (File file : Objects.requireNonNull(new File(location).listFiles((dir, name) -> !name.contains("offset") &&
                 !name.contains(".DS_Store") && !name.contains("wal")))) {
-            segments.add(new Segment(file.getAbsolutePath()));
+            segments.add(new SegmentImpl(file.getAbsolutePath()));
         }
     }
 
@@ -39,7 +41,7 @@ public class DiskStorage implements Storage {
 
     @Override
     public String get(String key) {
-        for (Segment segment : segments) {
+        for (SegmentImpl segment : segments) {
             log.info("Searching in segment = {}", segment);
             String data = segment.checkAndReturn(key);
             if (data != null) {
