@@ -1,19 +1,33 @@
 package com.lst.storage;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 
 @Slf4j
+@Component("diskStorage")
 public class DiskStorage implements Storage {
 
-    List<Segment> segments = new ArrayList<>();
+    private final List<Segment> segments = new ArrayList<>();
 
-    public DiskStorage(String location) {
-        for (File file : new File(location).listFiles((dir, name) -> !name.contains("offset") && !name.contains(".DS_Store") && !name.contains("wal"))) {
+    @Value("${segments.location}")
+    public String location;
+
+    public DiskStorage() {
+
+    }
+
+    @PostConstruct
+    public void populateSegments() {
+        for (File file : Objects.requireNonNull(new File(location).listFiles((dir, name) -> !name.contains("offset") &&
+                !name.contains(".DS_Store") && !name.contains("wal")))) {
             segments.add(new Segment(file.getAbsolutePath()));
         }
     }

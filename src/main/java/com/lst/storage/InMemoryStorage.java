@@ -1,6 +1,8 @@
 package com.lst.storage;
 
 import lombok.SneakyThrows;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -12,24 +14,27 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+
+@Component("inMemoryStorage")
 public class InMemoryStorage implements Storage {
 
-    int size;
 
-    TreeMap<String, String> map = new TreeMap<>();
-    ExecutorService service = Executors.newCachedThreadPool();
-    int segmentCount = 0;
+    @Value("${memtable.size:10}")
+    public int size;
 
-    Storage diskStorage;
-    WriteAheadLog writeAheadLog;
+    private final TreeMap<String, String> memtable = new TreeMap<>();
+    private final ExecutorService service = Executors.newCachedThreadPool();
+    private int segmentCount = 0;
 
-    public InMemoryStorage(int size, Storage diskStorage, WriteAheadLog writeAheadLog) {
-        this.size = size;
+    private final Storage diskStorage;
+    private final WriteAheadLog writeAheadLog;
+
+    public InMemoryStorage(Storage diskStorage, WriteAheadLog writeAheadLog) {
         this.diskStorage = diskStorage;
         this.writeAheadLog = writeAheadLog;
         for (String line : writeAheadLog.readLine()) {
             String[] data = line.split(" ");
-            map.put(data[0], data[1]);
+            memtable.put(data[0], data[1]);
         }
     }
 
@@ -37,14 +42,14 @@ public class InMemoryStorage implements Storage {
     @SneakyThrows
     @Override
     public void put(String key, String value) {
-        if (map.size() >= size) {
-            flushToDisk(map);
+        if (memtable.size() >= size) {
+            flushToDisk(memtable);
             writeAheadLog.delete();
             writeAheadLog.createNew();
-            map.clear();
+            memtable.clear();
         }
         writeAheadLog.append(key, value);
-        map.put(key, value);
+        memtable.put(key, value);
     }
 
 
@@ -90,8 +95,8 @@ public class InMemoryStorage implements Storage {
 
     @Override
     public String get(String key) {
-        if (map.containsKey(key)) {
-            return map.get(key);
+        if (memtable.containsKey(key)) {
+            return memtable.get(key);
         }
         return diskStorage.get(key);
     }

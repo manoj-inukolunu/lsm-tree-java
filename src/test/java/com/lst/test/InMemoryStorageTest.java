@@ -13,8 +13,8 @@ public class InMemoryStorageTest {
 
     @Before
     public void setup() throws Exception {
-        diskStorage = new DiskStorage("/Users/manoj/kvdata");
-        storage = new InMemoryStorage(10, diskStorage, new WriteAheadLog());
+        diskStorage = new DiskStorage();
+        storage = new InMemoryStorage(diskStorage, new WriteAheadLog());
     }
 
     @Test

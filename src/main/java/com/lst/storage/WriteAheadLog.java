@@ -1,6 +1,7 @@
 package com.lst.storage;
 
 import lombok.SneakyThrows;
+import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -9,12 +10,20 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 
+
+@Component("wal")
 public class WriteAheadLog {
 
-    File walFile = new File("/Users/manoj/kvdata/wal");
-    FileWriter writer = new FileWriter(walFile);
+    FileWriter writer;
+    File walFile;
 
     public WriteAheadLog() throws IOException {
+        walFile = new File("/Users/manoj/kvdata/wal");
+        if (walFile.exists()) {
+            writer = new FileWriter(walFile, true);
+        } else {
+            writer = new FileWriter(walFile);
+        }
     }
 
     public void append(String key, String value) throws IOException {

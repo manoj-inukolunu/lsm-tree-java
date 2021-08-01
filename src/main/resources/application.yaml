@@ -1,0 +1,5 @@
+memtable:
+  size: 10
+
+segments:
+  location: "/Users/manoj/kvdata"
