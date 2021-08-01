@@ -6,4 +6,8 @@ public interface Storage {
 
     String get(String key);
 
+    void delete(String key);
+
+    void update(String key, String value);
+
 }

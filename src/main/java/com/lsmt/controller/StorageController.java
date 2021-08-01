@@ -31,5 +31,10 @@ public class StorageController {
         storage.put(putRequest.getKey(), putRequest.getValue());
     }
 
+    @RequestMapping(value = "/deleteKey", method = RequestMethod.DELETE)
+    public void delete(@RequestBody GetRequest request) {
+        storage.delete(request.getKey());
+    }
+
 
 }

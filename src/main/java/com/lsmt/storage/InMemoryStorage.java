@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -23,6 +24,7 @@ public class InMemoryStorage implements Storage {
     public int size;
 
     private final TreeMap<String, String> memtable = new TreeMap<>();
+    private final TreeSet<String> tombstoned = new TreeSet<>();
     private final ExecutorService service = Executors.newCachedThreadPool();
     private int segmentCount = 0;
 
@@ -33,6 +35,7 @@ public class InMemoryStorage implements Storage {
         this.diskStorage = diskStorage;
         this.writeAheadLog = writeAheadLog;
         for (String line : writeAheadLog.readLine()) {
+            //TODO : Split by whitespace not ideal  this means keys and values should not have whitespaces
             String[] data = line.split(" ");
             memtable.put(data[0], data[1]);
         }
@@ -93,11 +96,29 @@ public class InMemoryStorage implements Storage {
         return dir + "/segment-" + (segmentCount++);
     }
 
-    @Override
-    public String get(String key) {
+    private String getLocal(String key) {
         if (memtable.containsKey(key)) {
             return memtable.get(key);
         }
         return diskStorage.get(key);
+    }
+
+    @Override
+    public String get(String key) {
+        String value = getLocal(key);
+        if (value.equals("##TOMBSTONED##")) {
+            return null;
+        }
+        return value;
+    }
+
+    @Override
+    public void delete(String key) {
+        put(key, "##TOMBSTONED##");
+    }
+
+    @Override
+    public void update(String key, String value) {
+        put(key, value);
     }
 }

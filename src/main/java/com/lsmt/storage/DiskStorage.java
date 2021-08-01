@@ -48,4 +48,14 @@ public class DiskStorage implements Storage {
         }
         return null;
     }
+
+    @Override
+    public void delete(String key) {
+        //NO-OP
+    }
+
+    @Override
+    public void update(String key, String value) {
+        //NO-OP
+    }
 }
